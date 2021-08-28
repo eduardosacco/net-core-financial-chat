@@ -1,9 +1,12 @@
+using System;
 using FinancialChat.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Plain.RabbitMQ;
+using RabbitMQ.Client;
 
 namespace FinancialChat
 {
@@ -21,6 +24,21 @@ namespace FinancialChat
         {
             services.AddRazorPages();
             services.AddSignalR();
+
+            services.AddSingleton<IConnectionProvider>(
+                        new ConnectionProvider("amqp://guest@localhost:5672"));
+
+            services.AddScoped<IPublisher>(x => new Publisher(
+                x.GetService<IConnectionProvider>(),
+                "stockbot-request-exchange",
+                ExchangeType.Direct));
+
+            services.AddScoped<ISubscriber>(x => new Subscriber(
+                x.GetService<IConnectionProvider>(),
+                "stockbot-report-exchange",
+                "stockbot-report-queue",
+                "stockbot-report",
+                ExchangeType.Direct));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,8 +65,18 @@ namespace FinancialChat
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
-                endpoints.MapHub<ChatHub>("/chatHub");
+                endpoints.MapHub<FinancialChatHub>("/chatHub");
             });
+            
+
+            //env.ApplicationStarted.Register(() => RegisterSignalRWithRabbitMQ(app.ApplicationServices));
+        }
+
+        public void RegisterSignalRWithRabbitMQ(IServiceProvider serviceProvider)
+        {
+            // Connect to RabbitMQ
+            //var rabbitMQService = (IRabbitMQService)serviceProvider.GetService(typeof(IRabbitMQService));
+            //rabbitMQService.Connect();
         }
     }
 }
