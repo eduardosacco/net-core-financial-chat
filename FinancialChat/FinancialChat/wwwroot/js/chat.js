@@ -10,10 +10,13 @@ connection.on("ReceiveMessage", function (user, message) {
     // is not interpreted as markup. If you're assigning in any other way, you 
     // should be aware of possible script injection concerns.
 
+    var date = new Date();
+    var timestamp = date.toLocaleString('es-AR');
     var li = document.createElement("li");
     var userName = document.createElement("b");
     userName.textContent = `${user}: `;
     document.getElementById("messagesList").appendChild(li);
+    li.appendChild(document.createTextNode(`[${timestamp}] - `));
     li.appendChild(userName);
     li.appendChild(document.createTextNode(`${message}`));
 });
