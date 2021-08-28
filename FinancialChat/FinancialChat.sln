@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinancialChat", "FinancialC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockBot", "StockBot\StockBot.csproj", "{C9C4B944-15CD-4245-AAA6-B627AD097A04}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockBotTests", "StockBotTests\StockBotTests.csproj", "{B0CBFC05-5530-4FF8-B64C-540AF051E914}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{C9C4B944-15CD-4245-AAA6-B627AD097A04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9C4B944-15CD-4245-AAA6-B627AD097A04}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9C4B944-15CD-4245-AAA6-B627AD097A04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0CBFC05-5530-4FF8-B64C-540AF051E914}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0CBFC05-5530-4FF8-B64C-540AF051E914}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0CBFC05-5530-4FF8-B64C-540AF051E914}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0CBFC05-5530-4FF8-B64C-540AF051E914}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
