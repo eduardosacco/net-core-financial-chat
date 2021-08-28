@@ -41,8 +41,7 @@ namespace StockBot
                         "stockbot-request",
                         ExchangeType.Direct));
 
-                    services.AddScoped<IAlphaVantage>(x => new AlphaVantage.AlphaVantage(
-                        x.GetService<IOptions<StockBotOptions>>()));
+                    services.AddScoped<IAlphaVantage, AlphaVantage.AlphaVantage>();
 
                     services.AddHostedService<StockBot>();
                 })
