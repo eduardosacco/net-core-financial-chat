@@ -6,11 +6,11 @@ using Microsoft.Extensions.Options;
 
 namespace StockBot.AlphaVantage
 {
-    public class AlphaVantage
+    public class AlphaVantage : IAlphaVantage
     {
-        private readonly StockCommandOptions stockCommandOptions;
+        private readonly StockBotOptions stockCommandOptions;
 
-        public AlphaVantage(IOptions<StockCommandOptions> stockCommandOptions)
+        public AlphaVantage(IOptions<StockBotOptions> stockCommandOptions)
         {
             this.stockCommandOptions = stockCommandOptions.Value;
         }
@@ -23,6 +23,7 @@ namespace StockBot.AlphaVantage
 
             using (WebClient client = new WebClient())
             {
+                // TODO: Add error handling
                 var result = await client.DownloadStringTaskAsync(queryUri);
                 var response = JsonSerializer.Deserialize<GlobalQuoteResponse>(result);
                 var globalQuote = response.GlobalQuote;

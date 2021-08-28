@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Configuration;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Plain.RabbitMQ;
 using RabbitMQ.Client;
 using StockBot.AlphaVantage;
@@ -19,12 +19,12 @@ namespace StockBot
             var builder = new ConfigurationBuilder();
             BuildConfig(builder);
 
-            var host = Host.CreateDefaultBuilder()
+            Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
                 {
                     // Add services here
-                    services.Configure<StockCommandOptions>(
-                        context.Configuration.GetSection(StockCommandOptions.AlphaVantageApi));
+                    services.Configure<StockBotOptions>(
+                        context.Configuration.GetSection(StockBotOptions.Key));
 
                     services.AddSingleton<IConnectionProvider>(
                         new ConnectionProvider("amqp://guest@localhost:5672"));
@@ -41,15 +41,13 @@ namespace StockBot
                         "stockbot-request",
                         ExchangeType.Direct));
 
+                    services.AddScoped<IAlphaVantage>(x => new AlphaVantage.AlphaVantage(
+                        x.GetService<IOptions<StockBotOptions>>()));
+
                     services.AddHostedService<StockBot>();
                 })
-                .Build();
-
-            // Publish message as test
-            //var publisher = ActivatorUtilities.GetServiceOrCreateInstance<IPublisher>(host.Services);
-            //publisher.Publish("Hello everyone", "stockbot-request", null);
-
-            host.Run();
+                .Build()
+                .Run();
         }
 
         public static void BuildConfig(IConfigurationBuilder builder)

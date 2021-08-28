@@ -1,24 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Plain.RabbitMQ;
+using StockBot.AlphaVantage;
 
 namespace StockBot
 {
     class StockBot : IHostedService
     {
         private readonly ISubscriber subscriber;
+        private readonly IPublisher publisher;
+        private readonly IAlphaVantage alphaVantage;
 
-        public StockBot(ISubscriber subscriber)
+        public StockBot(ISubscriber subscriber,
+            IPublisher publisher,
+            IAlphaVantage alphaVantage)
         {
             this.subscriber = subscriber;
+            this.publisher = publisher;
+            this.alphaVantage = alphaVantage;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            // SubscribeAsync doesnt seem to be working correctly 
             subscriber.Subscribe(ProcessMessage);
 
             return Task.CompletedTask;
@@ -31,8 +38,17 @@ namespace StockBot
 
         private bool ProcessMessage(string message, IDictionary<string, object> headers)
         {
-            // Process message here
-            Console.WriteLine(message);
+            // Message should be only symbol at this point
+            // We should validate symbol with Regex
+            Console.WriteLine($"Getting stock value for {message}");
+
+            // TODO: Add error handling
+            var stockPrice = alphaVantage.GetLatestStockPrice(message).Result;
+            var responseMessage = $"{stockPrice.Symbol} is {stockPrice.Price} per share.";
+
+            publisher.Publish(responseMessage, "stockbot-report", null);
+            
+            // Returning true will dequeue the message, we can implement retry logic in the future
             return true;
         }
     }
