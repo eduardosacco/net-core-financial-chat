@@ -1,4 +1,5 @@
 using System;
+using FinancialChat.Commands;
 using FinancialChat.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -23,6 +24,7 @@ namespace FinancialChat
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+
             services.AddSignalR();
 
             services.AddSingleton<IConnectionProvider>(
@@ -33,12 +35,15 @@ namespace FinancialChat
                 "stockbot-request-exchange",
                 ExchangeType.Direct));
 
-            services.AddScoped<ISubscriber>(x => new Subscriber(
+            services.AddSingleton<ISubscriber>(x => new Subscriber(
                 x.GetService<IConnectionProvider>(),
                 "stockbot-report-exchange",
                 "stockbot-report-queue",
                 "stockbot-report",
                 ExchangeType.Direct));
+
+            services.AddScoped<IStockBotCommandSender, StockBotCommandSender>();
+            services.AddHostedService<StockBotCommandReceiver>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
