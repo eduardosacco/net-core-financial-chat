@@ -3,6 +3,7 @@ using FinancialChat.Commands;
 using FinancialChat.Hubs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -65,6 +66,7 @@ namespace FinancialChat
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -72,16 +74,6 @@ namespace FinancialChat
                 endpoints.MapRazorPages();
                 endpoints.MapHub<FinancialChatHub>("/chatHub");
             });
-            
-
-            //env.ApplicationStarted.Register(() => RegisterSignalRWithRabbitMQ(app.ApplicationServices));
-        }
-
-        public void RegisterSignalRWithRabbitMQ(IServiceProvider serviceProvider)
-        {
-            // Connect to RabbitMQ
-            //var rabbitMQService = (IRabbitMQService)serviceProvider.GetService(typeof(IRabbitMQService));
-            //rabbitMQService.Connect();
         }
     }
 }
