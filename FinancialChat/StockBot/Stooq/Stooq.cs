@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CsvHelper;
@@ -11,28 +12,50 @@ namespace StockBot.Stooq
 {
     public class Stooq : IStooq
     {
+        private readonly IHttpClientFactory httpFactory;
+
         private static readonly string noData = "N/D";
-        private static readonly string commandRegexPattern = @"^\/stock?\s?=";
+        private static readonly string commandRegexPattern = @"^stock\s*=\s*([\w:.]+)";
+
+        public Stooq(IHttpClientFactory httpFactory)
+        {
+            this.httpFactory = httpFactory;
+        }
 
         public bool IsValidCommand(string message)
         {
             return Regex.IsMatch(message.Trim(), commandRegexPattern);
         }
 
-        public async Task<StockPriceResult> GetLatestStockPrice(string symbol)
+        public async Task<StockPriceResult> GetLatestStockPrice(string command)
         {
-            var QUERY_URL = $"https://stooq.com/q/l/?s={symbol}&f=sd2t2ohlcv&h&e=csv";
-            Uri queryUri = new Uri(QUERY_URL);
+            var match = Regex.Match(command, commandRegexPattern);
+            var symbol = match.Groups[1].Value;
+
+            if (string.IsNullOrEmpty(symbol))
+            {
+                return new StockPriceResult
+                {
+                    Success = false,
+                    ErrorMessage = "No symbol provided."
+                };
+            }
+
+            var queryUri = new Uri($"https://stooq.com/q/l/?s={symbol}&f=sd2t2ohlcv&h&e=csv");
 
             QuoteResponse quote;
             try
             {
                 string result;
-                using (WebClient client = new WebClient())
+                using (HttpClient client = httpFactory.CreateClient())
+                using (HttpResponseMessage response = await client.GetAsync(queryUri))
                 {
-                    result = await client.DownloadStringTaskAsync(queryUri);
+                    using (HttpContent content = response.Content)
+                    {
+                        result = await content.ReadAsStringAsync();
+                    }
                 }
-                    
+
                 using (TextReader sr = new StringReader(result))
                 {
                     var csv = new CsvReader(sr, CultureInfo.InvariantCulture);
@@ -49,11 +72,11 @@ namespace StockBot.Stooq
                 };
             }
 
-            if ( quote.Symbol == noData || quote.Close == noData)
+            if (quote == null || quote.Symbol == noData || quote.Close == noData)
             {
                 return new StockPriceResult
                 {
-                    Success = true,
+                    Success = false,
                     ErrorMessage = $"No data available or symbol unrecognized. Symbol: {symbol}"
                 };
             }

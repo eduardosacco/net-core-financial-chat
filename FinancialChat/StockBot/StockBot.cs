@@ -67,6 +67,7 @@ namespace StockBot
                 }
             }
 
+            Console.WriteLine($"Bot response: {responseMessage}");
             publisher.Publish(responseMessage, "stockbot-report", null);
             
             // Returning true will dequeue the message, we can implement retry logic in the future

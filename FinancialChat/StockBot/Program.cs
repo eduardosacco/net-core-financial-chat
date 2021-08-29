@@ -23,6 +23,7 @@ namespace StockBot
                 .ConfigureServices((context, services) =>
                 {
                     // Add services here
+                    services.AddHttpClient();
                     services.Configure<StockBotOptions>(
                         context.Configuration.GetSection(StockBotOptions.Key));
 
@@ -57,4 +58,3 @@ namespace StockBot
         }
     }
 }
-//
