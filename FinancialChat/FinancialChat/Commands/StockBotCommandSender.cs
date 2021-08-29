@@ -21,7 +21,7 @@ namespace FinancialChat.Commands
 
         public void Process(string message)
         {
-            var groomedMessage = Regex.Replace(message, @"s", "").Trim('/');
+            var groomedMessage = Regex.Replace(message, @"\s", "").Trim('/');
 
             publisher.Publish(groomedMessage, "stockbot-request", null);
         }
