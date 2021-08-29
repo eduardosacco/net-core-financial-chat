@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace StockBot.AlphaVantage
+namespace StockBot.Stooq
 {
-    public interface IAlphaVantage
+    public interface IStooq
     {
         bool IsValidCommand(string message);
 

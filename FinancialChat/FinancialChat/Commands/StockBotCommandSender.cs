@@ -1,6 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using FinancialChat.Hubs;
-using Microsoft.AspNetCore.SignalR;
 using Plain.RabbitMQ;
 
 namespace FinancialChat.Commands
@@ -9,7 +7,7 @@ namespace FinancialChat.Commands
     {
         private readonly IPublisher publisher;
 
-        private readonly string stockRegexPattern = "^\\/stock=([A-Z]{1,5})";
+        private readonly string commandRegexPattern = @"^\/stock(av)?\s?=";
 
         public StockBotCommandSender(IPublisher publisher)
         {
@@ -18,16 +16,14 @@ namespace FinancialChat.Commands
 
         public bool IsValidCommand(string message)
         {
-            return Regex.IsMatch(message, stockRegexPattern);
+            return Regex.IsMatch(message.Trim(), commandRegexPattern);
         }
 
         public void Process(string message)
         {
-            var match = Regex.Match(message, stockRegexPattern);
-            var capture = match.Groups[1].Value;
+            var groomedMessage = Regex.Replace(message, @"s", "").Trim('/');
 
-            publisher.Publish(capture, "stockbot-request", null);
+            publisher.Publish(groomedMessage, "stockbot-request", null);
         }
-
     }
 }

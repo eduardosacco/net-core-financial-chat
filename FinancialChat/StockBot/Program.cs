@@ -3,10 +3,10 @@ using System.IO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Plain.RabbitMQ;
 using RabbitMQ.Client;
 using StockBot.AlphaVantage;
+using StockBot.Stooq;
 
 namespace StockBot
 {
@@ -42,6 +42,7 @@ namespace StockBot
                         ExchangeType.Direct));
 
                     services.AddScoped<IAlphaVantage, AlphaVantage.AlphaVantage>();
+                    services.AddScoped<IStooq, Stooq.Stooq>();
 
                     services.AddHostedService<StockBot>();
                 })
