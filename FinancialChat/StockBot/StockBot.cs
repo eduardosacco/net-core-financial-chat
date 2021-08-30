@@ -30,7 +30,7 @@ namespace StockBot
         public Task StartAsync(CancellationToken cancellationToken)
         {
             // SubscribeAsync doesnt seem to be working correctly 
-            subscriber.Subscribe(ProcessMessage);
+            subscriber.SubscribeAsync(ProcessMessage);
 
             return Task.CompletedTask;
         }
@@ -40,14 +40,14 @@ namespace StockBot
             return Task.CompletedTask;
         }
 
-        private bool ProcessMessage(string message, IDictionary<string, object> headers)
+        private async Task<bool> ProcessMessage(string message, IDictionary<string, object> headers)
         {
             string responseMessage = $"Invalid command: {message}";
             StockPriceResult stockPriceResult = null;
             if (alphaVantage.IsValidCommand(message))
             {
                 Console.WriteLine($"Getting stock value for {message} using Alpha Vantage");
-                stockPriceResult = alphaVantage.GetLatestStockPrice(message).Result;
+                stockPriceResult = await alphaVantage.GetLatestStockPrice(message);
             }
             else if (stooq.IsValidCommand(message))
             {

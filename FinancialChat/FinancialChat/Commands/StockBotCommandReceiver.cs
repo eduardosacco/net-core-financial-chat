@@ -23,8 +23,7 @@ namespace FinancialChat.Commands
 
         Task IHostedService.StartAsync(CancellationToken cancellationToken)
         {
-            // SubscribeAsync doesnt seem to be working correctly
-            subscriber.Subscribe(ProcessMessage);
+            subscriber.SubscribeAsync(ProcessMessage);
 
             return Task.CompletedTask;
         }
@@ -34,12 +33,12 @@ namespace FinancialChat.Commands
             throw new System.NotImplementedException();
         }
 
-        private bool ProcessMessage(string message, IDictionary<string, object> headers)
+        private async Task<bool> ProcessMessage(string message, IDictionary<string, object> headers)
         {
             // Send StockBot response to chat
             // We are sending response to all clients but we could identify the command issuer
             // And send response just only to that user if needed
-            financialChatHub.Clients.All.SendAsync("ReceiveMessage", "StockBot", message).Wait();
+            await financialChatHub.Clients.All.SendAsync("ReceiveMessage", "StockBot", message);
 
             return true;
         }

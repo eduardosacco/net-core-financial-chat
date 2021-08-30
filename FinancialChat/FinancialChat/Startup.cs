@@ -29,7 +29,7 @@ namespace FinancialChat
             services.AddSignalR();
 
             services.AddSingleton<IConnectionProvider>(
-                        new ConnectionProvider("amqp://guest@localhost:5672"));
+                        new ConnectionProvider("amqp://guest@localhost:5672", true));
 
             services.AddScoped<IPublisher>(x => new Publisher(
                 x.GetService<IConnectionProvider>(),
